@@ -1,0 +1,10 @@
+---
+ansible_user: vagrant
+box: "bento/ubuntu-20.04"
+synced_folder: "sync/"
+hostname: "foobar"
+gui: false
+customize_opts:
+  "--accelerate3d": "off"
+  "--vrde": "off"
+  "--memory": "2048"

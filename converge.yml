@@ -1,0 +1,51 @@
+---
+- hosts: all
+  connection: local
+  pre_tasks:
+    - name: Set timezone
+      become: yes
+      timezone:
+        name: "{{ timezone }}"
+    - name: set locale idempotent
+      include_tasks: tasks/localectl.yml
+    - name: install latest packages
+      become: yes
+      apt:
+        name: "*"
+        state: latest
+        force_apt_get: true
+        update_cache: yes
+      when: upgrade_apt
+    - name: Install a list of packages
+      become: yes
+      apt:
+        name: "{{ item }}"
+        autoclean: yes
+        autoremove: yes
+      loop: 
+        - "{{ packages }}"
+      when: packages|length > 0
+    - name: upgrade pip
+      pip:
+        name: pip
+        state: latest
+        executable: pip3
+    - name: install pip packages
+      pip:
+        name: "{{ item }}"
+        state: latest
+        executable: pip3
+      loop: "{{ pip_modules }}"
+  roles:
+    - role: docker-role
+  tasks:
+    - name: Prepare some git repos
+      git:
+        repo: "{{ item }}"
+        dest: "{{ ansible_user_dir }}/.git_repos/"
+      loop: "{{ repos }}"
+      when: repos|length > 0
+    - name: insert pub key into authorized keys
+      blockinfile:
+        block: "{{ lookup('file', '/home/vagrant/.ssh/id_rsa.pub') }}"
+        path: "/home/vagrant/.ssh/authorized_keys"
