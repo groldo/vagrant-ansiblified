@@ -58,3 +58,12 @@ Vagrant executes the ansible playbook `converge.yml`
 Adjust this to your needs.
 Vagrant also installs all the needed roles (if one).
 So update the requirements.yml.
+
+## Windows networking
+
+Create bridge interface
+
+```powershell
+Get-NetAdapter
+New-VMSwitch -Name Internet -NetAdapterName <your online NetAdapter> -AllowManagementOS
+```
