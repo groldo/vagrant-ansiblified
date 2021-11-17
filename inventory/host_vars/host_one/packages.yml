@@ -1,2 +1,18 @@
 packages:
   - vim
+  - vagrant
+  - "tmux"
+  - "git"
+  - "gdb"
+  - "texlive-latex-extra"
+  - "texlive-fonts-extra"
+  - "texlive-lang-german"
+  - "texlive-science"
+  - "fig2dev"
+  - "latexmk"
+  - "pandoc"
+  - "pandoc-citeproc"
+  - "shellcheck"
+  - "mosquitto-clients"
+  - "python3-venv"
+  - firefox

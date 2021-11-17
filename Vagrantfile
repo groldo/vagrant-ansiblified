@@ -11,31 +11,59 @@ hosts           = hosts['all']['children'][scenario]['hosts']
 ENV["VAGRANT_EXPERIMENTAL"]="1"
 Vagrant.configure("2") do |config|
   hosts.each do |host|
+
     host_config   = YAML.load_file("#{current_dir}/inventory/host_vars/#{host[0]}/vagrant.yml")
-    $preStartScript = <<-SCRIPT
-    Set-VM #{host_config['hostname']} -EnhancedSessionTransportType HVSocket -verbose
-    Set-VMProcessor -VMName #{host_config['hostname']} -HwThreadCountPerCore 2
-    Set-VMFirmware -VMName #{host_config['hostname']} -FirstBootDevice (Get-VMHardDiskDrive -VMName #{host_config['hostname']})
-    SCRIPT
+
     config.vm.boot_timeout = 600
     config.vm.box = host_config['box']
-    #config.vm.synced_folder host_config['synced_folder'], "/home/vagrant/Documents"
-    config.vm.synced_folder ENV['USERPROFILE']+"/Documents", '/home/vagrant/Documents', type: "smb"
     config.vm.define host_config['hostname']
     config.vm.hostname = host_config['hostname']
-    config.vm.network "public_network", bridge: "Internet"
-    config.vm.provider "hyperv" do |h,override|
-        h.enable_virtualization_extensions = true
-        h.enable_enhanced_session_mode = true
-        h.vmname = host_config['hostname']
-        h.cpus = 2
-        h.memory = 4096
 
-        override.trigger.before :'VagrantPlugins::HyperV::Action::StartInstance', type: :action do |trigger|
-            trigger.info = "---------------- Running pre Start Triggers -----------------"
-            trigger.run = {inline: $preStartScript}
-        end
+    ### hyper-v config
+    if (host_config['provider'] == 'hyper-v')
+
+      config.vm.synced_folder ENV['USERPROFILE']+"/Documents", '/home/vagrant/Documents', type: "smb"
+      config.vm.network "public_network", bridge: "Default Switch"
+
+      $preStartScript = <<-SCRIPT
+      Set-VM #{host_config['hostname']} -EnhancedSessionTransportType HVSocket -verbose
+      Set-VMProcessor -VMName #{host_config['hostname']} -HwThreadCountPerCore 2
+      Set-VMFirmware -VMName #{host_config['hostname']} -FirstBootDevice (Get-VMHardDiskDrive -VMName #{host_config['hostname']})
+      SCRIPT
+
+      config.vm.provider "hyperv" do |h,override|
+          #h.enable_enhanced_session_mode = true
+          h.enable_virtualization_extensions = true
+          h.vmname = host_config['hostname']
+          h.cpus = 2
+          h.memory = 16384
+
+          override.trigger.before :'VagrantPlugins::HyperV::Action::StartInstance', type: :action do |trigger|
+              trigger.info = "---------------- Running pre Start Triggers -----------------"
+              trigger.run = {inline: $preStartScript}
+          end
+      end
+
     end
+    ### hyper-v config
+
+    ### virtualbox config
+    if (host_config['provider'] == 'virtualbox')
+
+      config.vm.synced_folder host_config['synced_folder'], "/home/vagrant/Documents"
+
+      config.vm.provider :virtualbox do |vb|
+        vb.name = host_config['hostname']
+        vb.gui = host_config['gui']
+        if (host_config.has_key? "customize_opts")
+          host_config['customize_opts'].each do |opt, setting|
+            vb.customize ["modifyvm", :id, opt, setting]
+          end
+        end
+      end
+    end
+    ### virtualbox config
+
 
     if (host_config.has_key? "forwarded_port")
       host_config['forwarded_port'].each do |host, guest|

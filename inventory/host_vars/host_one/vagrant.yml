@@ -1,4 +1,5 @@
 ---
+provider: hyper-v
 ansible_user: vagrant
 box: "bento/ubuntu-20.04"
 synced_folder: "sync/"
