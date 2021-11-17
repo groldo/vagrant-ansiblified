@@ -14,16 +14,21 @@ Vagrant.configure("2") do |config|
 
     host_config   = YAML.load_file("#{current_dir}/inventory/host_vars/#{host[0]}/vagrant.yml")
 
-    config.vm.boot_timeout = 600
+    config.vm.boot_timeout = host_config['boot_timeout']
     config.vm.box = host_config['box']
     config.vm.define host_config['hostname']
     config.vm.hostname = host_config['hostname']
 
+    if (host_config.has_key? "network")
+      host_config['network'].each do |opt, setting|
+        config.vm.network opt, bridge: setting
+      end
+    end
+
     ### hyper-v config
-    if (host_config['provider'] == 'hyper-v')
+    if (host_config['provider'] = 'hyper-v')
 
       config.vm.synced_folder ENV['USERPROFILE']+"/Documents", '/home/vagrant/Documents', type: "smb"
-      config.vm.network "public_network", bridge: "Default Switch"
 
       $preStartScript = <<-SCRIPT
       Set-VM #{host_config['hostname']} -EnhancedSessionTransportType HVSocket -verbose

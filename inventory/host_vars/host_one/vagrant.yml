@@ -1,10 +1,13 @@
 ---
 provider: hyper-v
+boot_timeout: 200
 ansible_user: vagrant
 box: "bento/ubuntu-20.04"
 synced_folder: "sync/"
 hostname: "foobar"
 gui: false
+network:
+  public_network: "Internet"
 customize_opts:
   "--accelerate3d": "off"
   "--vrde": "off"

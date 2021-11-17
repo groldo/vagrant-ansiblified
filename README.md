@@ -65,5 +65,7 @@ Create bridge interface
 
 ```powershell
 Get-NetAdapter
-New-VMSwitch -Name Internet -NetAdapterName <your online NetAdapter> -AllowManagementOS
+New-VMSwitch -Name Internet -NetAdapterName <your online NetAdapter> -AllowManagementOS $true
+## Set trunk mode on VSwitch
+Set-VMNetworkAdapterVlan -VMName foobar -Trunk -AllowedVlanIdList 0-100 -NativeVlanId 0
 ```
