@@ -1,14 +1,17 @@
 ---
 provider: hyper-v
+cpus: 2
+memory: 4096
 boot_timeout: 200
 ansible_user: vagrant
 box: "bento/ubuntu-20.04"
 synced_folder: "sync/"
-hostname: "foobar"
-gui: false
 network:
   public_network: "Internet"
+
+# virtual box customize opts #
+gui: false
 customize_opts:
   "--accelerate3d": "off"
   "--vrde": "off"
-  "--memory": "2048"
+  "--memory": "{{ memory }}"
