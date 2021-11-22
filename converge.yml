@@ -24,18 +24,14 @@
         autoremove: yes
       loop: 
         - "{{ packages }}"
-      when: packages|length > 0
-    - name: upgrade pip
-      pip:
-        name: pip
-        state: latest
-        executable: pip3
+      when: packages is defined and packages|length > 0
     - name: install pip packages
       pip:
         name: "{{ item }}"
         state: latest
         executable: pip3
       loop: "{{ pip_modules }}"
+      when: pip_modules is defined and pip_modules|length > 0
   roles:
     - role: docker-role
   tasks:
@@ -44,7 +40,7 @@
         repo: "{{ item }}"
         dest: "{{ ansible_user_dir }}/.git_repos/"
       loop: "{{ repos }}"
-      when: repos|length > 0
+      when: repos is defined and repos|length > 0
     - name: insert pub key into authorized keys
       blockinfile:
         block: "{{ lookup('file', '/home/vagrant/.ssh/id_rsa.pub') }}"
