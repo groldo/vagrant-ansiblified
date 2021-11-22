@@ -22,6 +22,7 @@
         name: "{{ item }}"
         autoclean: yes
         autoremove: yes
+        update_cache: yes
       loop: 
         - "{{ packages }}"
       when: packages is defined and packages|length > 0
