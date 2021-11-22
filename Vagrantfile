@@ -86,6 +86,12 @@ Vagrant.configure("2") do |config|
         end
       end
 
+      if (host_config.has_key? "shell_provision")
+        host_config['shell_provision'].each do | cmd |
+          machine.vm.provision "shell", privileged: false, inline: cmd
+        end
+      end
+
       machine.vm.provision "shell", path: "./preinstall.sh"
       machine.vm.provision "ansible_local" do |ansible|
         ansible.inventory_path = "inventory/hosts.yml"
@@ -94,12 +100,6 @@ Vagrant.configure("2") do |config|
         ansible.galaxy_role_file = "roles/requirements.yml"
         ansible.limit          = host[0]
         ansible.inventory_path = "inventory/hosts.yml"
-      end
-
-      if (host_config.has_key? "shell_provision")
-        host_config['shell_provision'].each do | cmd |
-          machine.vm.provision "shell", privileged: false, inline: cmd
-        end
       end
     end
   end
