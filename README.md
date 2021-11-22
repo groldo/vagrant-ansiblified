@@ -13,13 +13,23 @@ VM Provisioning with vagrant the ansible way
 No modification should be needed to the `Vagrantfile`
 Vagrant loads the box and configures virtualbox
 
+## Create your own scenario
+
+1. Create a value under `children`, this is the name of the scenario
+2. adjust the name of the variable `scenario`
+3. for all hosts in your scenario:
+    1. copy paste the `hostone` directory under `host_vars`
+    2. rename to your host names
+    3. adjust to your needs, eg. memory and cpu
+4. `vagrant up --color --provision` 
+
 ## hosts.yml
 
 | Variable | default | description |
 |:---:|:---:|:---:|
 | scenario | *dev* | The name for your scenario. You can have multiple scenarios |
 | group | *dev* | create a group and put all hosts which should be setup in this group |
-| hosts | *host_one* | host to create. Multiple values allowed |
+| hosts | *hostone* | host to create. Multiple values allowed |
 
 ## inventory/host_vars/*host*/vagrant.yml
 
@@ -33,10 +43,10 @@ See subsection name for example.
 | synced_folder | "sync/" | folder to sync |
 | hostname: | "foobar" | hostname |
 | gui: | false | true if gui is used |
-| customize_opts | *truncated* see host_vars/host_one/vagrant.yml | customization options for virtual box see `VBoxManage --help` for an overview |
-| forwarded_port | *truncated* see host_vars/host_one/vagrant.yml | Ports to forward |
-| file_provision | *truncated* see host_vars/host_one/vagrant.yml | Files to provision |
-| shell_provision | *truncated* see host_vars/host_one/vagrant.yml | Shell scripts to run on host |
+| customize_opts | *truncated* see host_vars/hostone/vagrant.yml | customization options for virtual box see `VBoxManage --help` for an overview |
+| forwarded_port | *truncated* see host_vars/hostone/vagrant.yml | Ports to forward |
+| file_provision | *truncated* see host_vars/hostone/vagrant.yml | Files to provision |
+| shell_provision | *truncated* see host_vars/hostone/vagrant.yml | Shell scripts to run on host |
 
 ## Execution
 
