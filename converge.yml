@@ -46,3 +46,16 @@
       blockinfile:
         block: "{{ lookup('file', '/home/vagrant/.ssh/id_rsa.pub') }}"
         path: "/home/vagrant/.ssh/authorized_keys"
+    - name: disable password authentication for ssh
+      become: yes
+      lineinfile:
+        path: '/etc/ssh/sshd_config'
+        regexp: '^(#)?PasswordAuthentication\ (yes|no)$'
+        line: 'PasswordAuthentication no'
+      register: sshd_config
+    - name: restart ssh
+      become: yes
+      service:
+        name: ssh
+        state: restarted
+      when: sshd_config.changed
