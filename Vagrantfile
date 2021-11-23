@@ -29,7 +29,7 @@ Vagrant.configure("2") do |config|
       ### hyper-v config
       if (host_config['provider'] = 'hyper-v')
 
-        machine.vm.synced_folder ENV['USERPROFILE']+"/Documents", '/home/vagrant/Documents', type: "smb"
+        machine.vm.synced_folder host_config['synced_folder'], "/home/vagrant/Documents", type: "smb"
 
         $preStartScript = <<-SCRIPT
         Set-VM #{host[0]} -EnhancedSessionTransportType HVSocket -verbose
