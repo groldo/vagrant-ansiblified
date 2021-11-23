@@ -1,0 +1,27 @@
+---
+provider: virtualbox
+cpus: 2
+memory: 4096
+boot_timeout: 200
+ansible_user: vagrant
+box: "bento/ubuntu-20.04"
+synced_folder: "~/Documents"
+network:
+  public_network: "eth0"
+
+# virtual box customize opts #
+gui: false
+customize_opts:
+  "--accelerate3d": "off"
+  "--vrde": "off"
+
+file_provision:
+  "~/.ssh/id_rsa": "~/.ssh/id_rsa"
+  "~/.ssh/id_rsa.pub": "~/.ssh/id_rsa.pub"
+
+shell_provision:
+  - "sudo systemctl stop systemd-resolved"
+  - "sudo systemctl disable systemd-resolved"
+  - "sudo rm -rf /etc/resolv.conf"
+  - "sudo echo nameserver 1.1.1.1 >> ~/resolv.conf"
+  - "sudo mv ~/resolv.conf /etc/resolv.conf"

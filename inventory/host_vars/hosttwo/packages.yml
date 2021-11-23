@@ -1,0 +1,18 @@
+packages:
+  - gnome
+  - firefox
+  - vagrant
+  - virtualbox
+  - vim
+  - tmux
+  - git
+  - texlive-latex-extra
+  - texlive-fonts-extra
+  - texlive-lang-german
+  - texlive-science
+  - fig2dev
+  - latexmk
+  - pandoc
+  - pandoc-citeproc
+  - mosquitto-clients
+  - python3-venv

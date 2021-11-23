@@ -27,7 +27,7 @@ Vagrant.configure("2") do |config|
       end
 
       ### hyper-v config
-      if (host_config['provider'] = 'hyper-v')
+      if (host_config['provider'] == 'hyper-v')
 
         machine.vm.synced_folder host_config['synced_folder'], "/home/vagrant/Documents", type: "smb"
 
@@ -60,6 +60,7 @@ Vagrant.configure("2") do |config|
         machine.vm.provider :virtualbox do |vb|
           vb.name = host[0]
           vb.gui = host_config['gui']
+          vb.customize ["modifyvm", :id, "--memory", host_config['memory']]
           if (host_config.has_key? "customize_opts")
             host_config['customize_opts'].each do |opt, setting|
               vb.customize ["modifyvm", :id, opt, setting]
