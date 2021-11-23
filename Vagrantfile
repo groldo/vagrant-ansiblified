@@ -49,9 +49,8 @@ Vagrant.configure("2") do |config|
                 trigger.run = {inline: $preStartScript}
             end
         end
-
       end
-      ### hyper-v config
+     ### hyper-v config
 
       ### virtualbox config
       if (host_config['provider'] == 'virtualbox')

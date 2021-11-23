@@ -91,6 +91,16 @@ Changes vagrant user password to `vagrant`
 Install ansible
 **NOTE: change password**
 
+Add the following to `preinstall.sh` in a hyper-v setup.
+Installs xrdp for enahnced session mode
+Got to be run twice with reboots
+
+```bash
+wget -O install.sh https://raw.githubusercontent.com/Hinara/linux-vm-tools/ubuntu20-04/ubuntu/20.04/install.sh
+sudo chmod +x install.sh
+sudo ./install.sh || :
+```
+
 ## ansible play
 
 Vagrant executes the ansible playbook `converge.yml`
