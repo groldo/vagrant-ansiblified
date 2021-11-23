@@ -49,6 +49,9 @@ Vagrant.configure("2") do |config|
                 trigger.run = {inline: $preStartScript}
             end
         end
+        if host_config['gui']
+          machine.vm.provision "shell", path: "./files/install_xrdp.sh"
+        end
       end
      ### hyper-v config
 

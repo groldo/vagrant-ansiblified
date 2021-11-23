@@ -71,7 +71,7 @@ See subsection name for example.
 | box | "ubuntu/focal64" | Vagrant box to use |
 | synced_folder | "sync/" | folder to sync |
 | hostname: | "foobar" | hostname |
-| gui: | false | true if gui is used |
+| gui: | false | When gui is true for hyperv `files/install_xrdp.sh` is executed |
 | customize_opts | *truncated* see host_vars/hostone/vagrant.yml | customization options for virtual box see `VBoxManage --help` for an overview |
 | forwarded_port | *truncated* see host_vars/hostone/vagrant.yml | Ports to forward |
 | file_provision | *truncated* see host_vars/hostone/vagrant.yml | Files to provision |
@@ -90,16 +90,6 @@ See subsection name for example.
 Changes vagrant user password to `vagrant`
 Install ansible
 **NOTE: change password**
-
-Add the following to `preinstall.sh` in a hyper-v setup.
-Installs xrdp for enahnced session mode
-Got to be run twice with reboots
-
-```bash
-wget -O install.sh https://raw.githubusercontent.com/Hinara/linux-vm-tools/ubuntu20-04/ubuntu/20.04/install.sh
-sudo chmod +x install.sh
-sudo ./install.sh || :
-```
 
 ## ansible play
 

@@ -10,7 +10,7 @@ network:
   public_network: "Internet"
 
 # virtual box customize opts #
-gui: false
+gui: true
 customize_opts:
   "--accelerate3d": "off"
   "--vrde": "off"
