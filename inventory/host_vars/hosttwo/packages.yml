@@ -1,5 +1,5 @@
 packages:
-  - gnome
+  - gnome-core
   - firefox
   - vagrant
   - virtualbox
