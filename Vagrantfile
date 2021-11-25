@@ -6,19 +6,29 @@ require 'yaml'
 current_dir     = File.dirname(File.expand_path(__FILE__))
 hosts           = YAML.load_file("#{current_dir}/inventory/hosts.yml")
 scenario        = hosts['all']['vars']['scenario']
-hosts           = hosts['all']['children'][scenario]['hosts']
+hosts           = hosts['all']['children'][scenario]
+
+if (hosts.has_key? "children")
+  children = Array[]
+  hosts['children'].each do | key, value |
+    children.push(value['hosts'].keys[0])
+  end
+  hosts = children
+else
+  hosts = hosts['hosts'].keys
+end
 
 ENV["VAGRANT_EXPERIMENTAL"]="1"
 Vagrant.configure("2") do |config|
   hosts.each do |host|
 
-    host_config   = YAML.load_file("#{current_dir}/inventory/host_vars/#{host[0]}/vagrant.yml")
+    host_config   = YAML.load_file("#{current_dir}/inventory/host_vars/#{host}/vagrant.yml")
 
-    config.vm.define host[0] do |machine|
+    config.vm.define host do |machine|
 
       machine.vm.boot_timeout = host_config['boot_timeout']
       machine.vm.box = host_config['box']
-      machine.vm.hostname = host[0]
+      machine.vm.hostname = host
 
       if (host_config.has_key? "network")
         host_config['network'].each do |opt, setting|
@@ -32,15 +42,15 @@ Vagrant.configure("2") do |config|
         machine.vm.synced_folder host_config['synced_folder'], "/home/vagrant/Documents", type: "smb"
 
         $preStartScript = <<-SCRIPT
-        Set-VM #{host[0]} -EnhancedSessionTransportType HVSocket -verbose
-        Set-VMProcessor -VMName #{host[0]} -HwThreadCountPerCore 2
-        Set-VMFirmware -VMName #{host[0]} -FirstBootDevice (Get-VMHardDiskDrive -VMName #{host[0]})
+        Set-VM #{host} -EnhancedSessionTransportType HVSocket -verbose
+        Set-VMProcessor -VMName #{host} -HwThreadCountPerCore 2
+        Set-VMFirmware -VMName #{host} -FirstBootDevice (Get-VMHardDiskDrive -VMName #{host})
         SCRIPT
 
         machine.vm.provider "hyperv" do |h,override|
             #h.enable_enhanced_session_mode = true
             h.enable_virtualization_extensions = true
-            h.vmname = host[0]
+            h.vmname = host
             h.cpus = host_config['cpus']
             h.memory = host_config['memory']
 
@@ -61,7 +71,7 @@ Vagrant.configure("2") do |config|
         machine.vm.synced_folder host_config['synced_folder'], "/home/vagrant/Documents"
 
         machine.vm.provider :virtualbox do |vb|
-          vb.name = host[0]
+          vb.name = host
           vb.gui = host_config['gui']
           vb.customize ["modifyvm", :id, "--memory", host_config['memory']]
           if (host_config.has_key? "customize_opts")
@@ -101,7 +111,7 @@ Vagrant.configure("2") do |config|
         ansible.limit = "all"
         ansible.playbook = "converge.yml"
         ansible.galaxy_role_file = "roles/requirements.yml"
-        ansible.limit          = host[0]
+        ansible.limit          = host
         ansible.inventory_path = "inventory/hosts.yml"
       end
     end
