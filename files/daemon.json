@@ -1,0 +1,7 @@
+{
+    "insecure-registries" : ["192.168.1.11:5000"],
+    "log-opts": {
+        "max-size": "25m",
+        "max-file":  "3"
+    }
+}
