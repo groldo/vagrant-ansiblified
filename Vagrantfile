@@ -31,9 +31,10 @@ Vagrant.configure("2") do |config|
       machine.vm.hostname = host
 
       if (host_config.has_key? "network")
-        host_config['network'].each do |opt, setting|
-          machine.vm.network opt, bridge: setting
-        end
+        machine.vm.network host_config['network']['net'], bridge: host_config['network']['bridge']
+      end
+      if (host_config.has_key? "intnet")
+        machine.vm.network "private_network", ip: host_config['network']['ip'], virtualbox__intnet: true
       end
 
       ### hyper-v config
