@@ -1,0 +1,85 @@
+---
+- name: Disable swapoff
+  become: 'yes'
+  shell: swapoff -a
+  changed_when: false
+
+- name: Disable swapoff permanently
+  become: 'yes'
+  replace:
+    path: /etc/fstab
+    regexp: '^(\s*)([^#\n]+\s+)(\w+\s+)swap(\s+.*)$'
+    replace: '#\1\2\3swap\4'
+    backup: yes
+
+- name: ensure br_netfilter kernel module is loaded
+  become: 'yes'
+  community.general.modprobe:
+    name: br_netfilter
+    state: present
+
+- name: check if br_netfilter kernel module is loaded
+  register: result
+  become: 'yes'
+  shell: cat /proc/modules | grep -c br_netfilter
+  failed_when: result.stdout is search('0')
+  changed_when: false
+
+- name: make bridged traffic visible to iptables
+  become: 'yes'
+  ansible.posix.sysctl:
+    name: '{{ item.name }}'
+    value: '{{ item.value }}'
+    state: present
+    reload: 'yes'
+    sysctl_file: /etc/sysctl.d/99-kubernetes.conf
+  with_items:
+    - name: net.bridge.bridge-nf-call-ip6tables
+      value: '1'
+    - name: net.bridge.bridge-nf-call-iptables
+      value: '1'
+
+- name: install and configure dependencies
+  become: yes
+  apt:
+    name: "{{ item }}"
+  loop:
+    - apt-transport-https
+    - curl
+
+- name: Create kubernetes repo file
+  become: yes
+  copy:
+    content: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+    dest: "/etc/apt/sources.list.d/kubernetes.list"
+
+- name: add "google cloud packages" gpg key
+  become: yes
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg.asc
+
+- name: install kubernetes binaries
+  become: yes
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+  loop:
+    - kubelet
+    - kubeadm
+    - kubectl
+
+- name: set k8 binaries on hold
+  become: yes
+  dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  loop:
+    - kubelet
+    - kubeadm
+    - kubectl
+
+- name: start kubelet
+  service:
+    name: kubelet
+    state: started
+    enabled: yes

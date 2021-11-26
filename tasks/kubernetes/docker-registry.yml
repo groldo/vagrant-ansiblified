@@ -1,0 +1,83 @@
+---
+- name: create docker-registry project directory
+  become: yes
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ registry_project_dir }}/storage"
+    - "{{ sources_path }}"
+- name: get docker registry image
+  block:
+    - name: read docker registry image
+      become: yes
+      docker_image:
+        name: 'registry:2'
+        source: 'load'
+        force_source: 'yes'
+        load_path: '{{ sources_path }}/registry~2.tar.gz'
+  rescue:
+    - name: pull and save docker registry image
+      become: yes
+      docker_image:
+        name: 'registry:2'
+        source: 'pull'
+        force_source: yes
+        archive_path: '{{ sources_path }}/registry~2.tar.gz'
+      run_once: yes
+
+- name: Deploy Docker Registry
+  become: yes
+  register: result
+  docker_container:
+    container_default_behavior: compatibility
+    image: "registry:2"
+    name: local-registry
+    ports: "5000:5000"
+    volumes: "{{ registry_project_dir }}/storage:/srv/registry"
+    env:
+      STANDALONE: "true"
+      MIRROR_SOURCE: "https://registry-1.docker.io"
+      MIRROR_SOURCE_INDEX: "https://index.docker.io"
+      STORAGE_PATH: "/srv/registry"
+    restart_policy: always
+  run_once: yes
+
+- name: read, tag and push all images to local-registry
+  register: result
+  become: yes
+  docker_image:
+    name: '{{ item }}'
+    repository: '{{ docker_registry }}/{{ item.split("/") | last }}'
+    push: 'yes'
+    source: 'load'
+    force_source: 'yes'
+    force_tag: 'yes'
+    load_path: '{{ sources_path }}/{{ item.split("/") | 
+      last | 
+      replace(":","~") }}.tar.gz'
+  with_items: '{{ container_images }}'
+  run_once: 'yes'
+  ignore_errors: 'yes'
+  delegate_to: masternode
+
+- name: pull, save, tag and push missing images to local-registry
+  register: result
+  become: yes
+  docker_image:
+    name: '{{ item.item }}'
+    repository: '{{ docker_registry }}/{{ item.item.split("/") | last }}'
+    push: 'yes'
+    source: 'pull'
+    force_source: 'yes'
+    force_tag: 'yes'
+    archive_path: '{{ sources_path }}/{{ item.item.split("/") | 
+      last | 
+      replace(":","~") }}.tar.gz'
+  with_items: '{{ result.results | selectattr("failed") }}'
+  loop_control:
+    label: '{{ item.item }}'
+  retries: 5
+  until: result is succeeded
+  run_once: 'yes'
+  delegate_to: masternode
