@@ -1,0 +1,52 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    k8s-app: ha-ip-apiservices
+  name: ha-ip-apiservices
+  namespace: kube-system
+spec:
+  hostNetwork: true
+  terminationGracePeriodSeconds: 5
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+  initContainers:
+    - name: setup-sysctl-nobind
+      command:
+        - sh
+        - -c
+        - sysctl -w net.ipv4.ip_nonlocal_bind=1
+      image: 192.168.1.11:5000/busybox:1.30
+      resources:
+        limits:
+          cpu: 10m
+          memory: 50Mi
+        requests:
+          cpu: 10m
+          memory: 50Mi
+      securityContext:
+        privileged: true
+  containers:
+    - name: haproxy
+      image: 10.250.9.95:5000/haproxy:k8scp-1.1
+      resources: {}
+      env:
+        - name: KUBEAPI_VIP
+          value: "10.250.9.253"
+        - name: HAPROXY_BACKENDS
+          value: "10.250.9.136,10.250.9.128,10.250.9.200"
+    - name: keepalived
+      image: 10.250.9.95:5000/keepalived:k8scp-1.1
+      resources: {}
+      env:
+        - name: KEEPALIVED_VIP
+          value: "10.250.9.253"
+        - name: KEEPALIVED_INTERFACE
+          value: "ens3"
+        - name: AUTH_PASSWORD
+          value: "CmnuvH8=l"
+      securityContext:
+        capabilities:
+          add:
+            - NET_ADMIN
