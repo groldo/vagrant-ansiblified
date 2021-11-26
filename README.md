@@ -98,6 +98,13 @@ Adjust this to your needs.
 Vagrant also installs all the needed roles (if one).
 So update the requirements.yml.
 
+## ssh config
+
+```bash
+vagrant ssh-config 2>/dev/null >> ~/.ssh/config
+ansible -m ping -i inventory/hosts.yml kubernetes
+```
+
 ## Windows networking
 
 Create bridge interface
