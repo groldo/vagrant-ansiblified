@@ -40,7 +40,9 @@ Vagrant.configure("2") do |config|
       ### hyper-v config
       if (host_config['provider'] == 'hyper-v')
 
-        machine.vm.synced_folder host_config['synced_folder'], "/home/vagrant/Documents", type: "smb"
+        if (host_config.has_key? "synced_folder")
+          machine.vm.synced_folder host_config['synced_folder'], "/home/vagrant/Documents", type: "smb"
+        end
 
         $preStartScript = <<-SCRIPT
         Set-VM #{host} -EnhancedSessionTransportType HVSocket -verbose
@@ -69,7 +71,9 @@ Vagrant.configure("2") do |config|
       ### virtualbox config
       if (host_config['provider'] == 'virtualbox')
 
-        machine.vm.synced_folder host_config['synced_folder'], "/home/vagrant/Documents"
+        if (host_config.has_key? "synced_folder")
+          machine.vm.synced_folder host_config['synced_folder'], "/home/vagrant/Documents"
+        end
 
         machine.vm.provider :virtualbox do |vb|
           vb.name = host
