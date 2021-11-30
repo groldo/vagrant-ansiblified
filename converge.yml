@@ -36,6 +36,16 @@
   roles:
     - role: docker-role
   tasks:
+    - name: set keyboard layout
+      become: 'yes'
+      copy:
+        dest: /etc/default/keyboard
+        content: |
+          XKBMODEL="pc105"
+          XKBLAYOUT="de"
+          XKBVARIANT=""
+          XKBOPTIONS=""
+          BACKSPACE="guess"
     - name: Prepare some git repos
       git:
         repo: "{{ item }}"

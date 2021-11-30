@@ -5,7 +5,9 @@ memory: 4096
 boot_timeout: 200
 ansible_user: vagrant
 box: "bento/ubuntu-20.04"
-synced_folder: "~/Documents"
+
+intnet: 
+  ip: "192.168.1.12"
 
 # virtual box customize opts #
 gui: false
