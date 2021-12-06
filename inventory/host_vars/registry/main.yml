@@ -1,0 +1,6 @@
+---
+ansible_python_interpreter: /usr/bin/python3
+timezone: "Europe/Berlin"
+config_system_locale: 'de_DE.UTF-8'
+config_system_language: 'de_DE.UTF-8'
+upgrade_apt: false
