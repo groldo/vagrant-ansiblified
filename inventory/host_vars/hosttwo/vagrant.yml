@@ -14,6 +14,7 @@ customize_opts:
   "--vrde": "off"
 
 file_provision:
+  "~/.gitconfig": "~/.gitconfig"
   "~/.ssh/id_rsa": "~/.ssh/id_rsa"
   "~/.ssh/id_rsa.pub": "~/.ssh/id_rsa.pub"
 
