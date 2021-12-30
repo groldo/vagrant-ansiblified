@@ -35,6 +35,7 @@
       when: pip_modules is defined and pip_modules|length > 0
   roles:
     - role: docker-role
+      when: "'docker' in group_names"
   tasks:
     - name: set keyboard layout
       become: 'yes'
