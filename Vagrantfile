@@ -34,7 +34,7 @@ Vagrant.configure("2") do |config|
         machine.vm.network host_config['network']['net'], bridge: host_config['network']['bridge']
       end
       if (host_config.has_key? "intnet")
-        machine.vm.network "private_network", ip: host_config['intnet']['ip'], virtualbox__intnet: true
+        machine.vm.network "private_network", ip: host_config['intnet']['ip']
       end
 
       ### hyper-v config
