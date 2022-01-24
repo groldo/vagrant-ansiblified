@@ -1,7 +1,7 @@
 ---
 provider: virtualbox
 cpus: 2
-memory: 2048
+memory: 4096
 boot_timeout: 200
 ansible_user: vagrant
 box: "bento/ubuntu-20.04"
